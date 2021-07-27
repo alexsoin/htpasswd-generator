@@ -1,56 +1,66 @@
 <template>
-  <div class="flex justify-center h-screen items-center">
-    <div class="container">
-      <h1 class="mb-10 text-4xl uppercase">Генератор .htpasswd</h1>
-      <div class="grid grid-cols-2 gap-4">
+  <div class="flex justify-center min-h-screen items-center">
+    <div class="container p-4">
+      <h1 class="mb-10 text-xl md:text-4xl uppercase flex justify-start gap-2 items-center">
+      <a href="https://zencod.ru/articles/" target="_blank" class="hover:opacity-50 transition-opacity" title="zencod.ru"><img src="./assets/logo.png" alt="logo zencod.ru" height="40" width="40"></a>
+      Генератор .htpasswd
+      </h1>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-gray-100 rounded-md p-4">
-          <div class="grid grid-cols-2 gap-2">
-            <label class="block">
-              <span class="text-gray-700">Название базовой авторизации</span>
-              <input v-model="htpasswd.name" type="text" class="mt-1 block w-full rounded-md border-gray-300 focus:ring-0" placeholder="Base">
-            </label>
-            <label class="block">
-              <span class="text-gray-700">Путь к файлу .htpasswd</span>
-              <input v-model="htpasswd.path" type="text" class="mt-1 block w-full rounded-md border-gray-300 focus:ring-0" placeholder="~/path">
-            </label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <zen-input
+              v-model="htpasswd.name"
+              label="Название базовой авторизации"
+              placeholder="Base"
+            />
+            <zen-input
+              v-model="htpasswd.path"
+              label="Путь к файлу .htpasswd"
+              placeholder="~/path"
+            />
           </div>
 
           <div class="mt-8">
-            <div class="grid grid-cols-9 gap-2">
-              <span class="text-gray-700 col-span-4">Логин</span>
-              <span class="text-gray-700 col-span-4">Пароль</span>
+            <div class="grid grid-cols-5 md:grid-cols-9 gap-2">
+              <span class="text-gray-700 col-span-2 md:col-span-4">Логин</span>
+              <span class="text-gray-700 col-span-2 md:col-span-4">Пароль</span>
               <span></span>
               <template v-for="(login, keyLogin) in logins" :key="'login-'+keyLogin">
-                <label class="block col-span-4">
-                  <input v-model="login.name" type="text" class="mb-1 block w-full rounded-md border-gray-300 focus:ring-0" placeholder="Логин">
-                </label>
-                <label class="block col-span-4">
-                  <input v-model="login.pass" type="password" class="mb-1 block w-full rounded-md border-gray-300 focus:ring-0" placeholder="Пароль">
-                </label>
+                <zen-input
+                  v-model="login.name"
+                  placeholder="Логин"
+                  class="col-span-2 md:col-span-4"
+                />
+                <zen-input
+                  v-model="login.pass"
+                  type-input="password"
+                  placeholder="Пароль"
+                  class="col-span-2 md:col-span-4"
+                />
                 <button
                   v-if="keyLogin == logins.length - 1"
-                  class="flex py-2 px-4 mb-1 items-center justify-center rounded-md text-white text-xl bg-blue-600 hover:bg-blue-700"
+                  class="flex py-2 px-4 mt-1 items-center justify-center rounded-md text-white text-xl bg-blue-600 hover:bg-blue-700"
                   @click="addLogin"
                 >
                   <icon-add />
                 </button>
                 <button
                   v-else
-                  class="flex py-2 px-4 mb-1 items-center justify-center rounded-md text-white text-xl bg-yellow-600 hover:bg-yellow-700"
+                  class="flex py-2 px-4 mt-1 items-center justify-center rounded-md text-white text-xl bg-yellow-600 hover:bg-yellow-700"
                   @click="removeLogin(keyLogin)"
                 >
                   <icon-remove />
                 </button>
               </template>
             </div>
-            <div class="flex justify-between mt-10 gap-2">
+            <div class="flex flex-col md:flex-row justify-between mt-10 gap-2">
               <label class="block">
                 <select v-model="algoritms.selected" class="block w-full mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                   <option disabled>Алгоритм шифрования</option>
                   <option v-for="algoritm in algoritms.list" :key="algoritm.name" v-bind:value="algoritm.name">{{ algoritm.desc }}</option>
                 </select>
               </label>
-              <button @click="createLogins" class="flex gap-2 py-2 px-4 rounded-md text-white text-xl bg-green-600 hover:bg-green-700">
+              <button @click="createLogins" class="flex justify-center gap-2 py-2 px-4 rounded-md text-white text-xl bg-green-600 hover:bg-green-700">
                 Сгенерировать <icon-create />
               </button>
             </div>
@@ -75,12 +85,14 @@
   import CryptoJS from 'crypto-js/crypto-js';
   import SHA1 from 'crypto-js/sha1';
 
+  import ZenInput from './components/ZenInput.vue'
+
   import IconAdd from 'virtual:vite-icons/carbon/add'
   import IconRemove from 'virtual:vite-icons/ic/baseline-remove'
   import IconCreate from 'virtual:vite-icons/eos-icons/subscriptions-created-outlined'
 
   export default {
-    components: { IconAdd, IconRemove, IconCreate, },
+    components: { IconAdd, IconRemove, IconCreate, ZenInput, },
     data() {
       return {
         listLogins: "",
@@ -89,9 +101,9 @@
           path: ""
         },
         algoritms: {
-          selected: 'ssha1',
+          selected: 'sha1',
           list: [
-            { name: 'ssha1', desc: 'SHA1 salted sum in base64'},
+            // { name: 'ssha1', desc: 'SHA1 salted sum in base64'},
             { name: 'sha1', desc: 'SHA1 sum in base64'},
             { name: 'plain', desc: 'Plain Text / No hashing'},
           ]
